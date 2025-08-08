@@ -1,30 +1,32 @@
 const express = require('express');
-const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
 
+// 🚨 FIX: Import the ffmpeg-installer package
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+
+// 🚨 FIX: Set the path to the ffmpeg executable
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'app.html'));
-});
-
+// API endpoint to get video duration from a POST request
 app.post('/duration', async (req, res) => {
     const videoUrl = req.body.url;
 
     if (!videoUrl) {
         return res.status(400).json({
             success: false,
-            error: 'Missing video URL in request body. Please provide a JSON object with a "url" key.'
+            error: 'Missing video URL in request body.'
         });
     }
 
     try {
         const info = await new Promise((resolve, reject) => {
+            // Note: `ffprobe` is a method of the ffmpeg command object
             ffmpeg.ffprobe(videoUrl, (err, metadata) => {
                 if (err) {
                     reject(err);
@@ -39,7 +41,7 @@ app.post('/duration', async (req, res) => {
         if (duration) {
             res.json({
                 success: true,
-                duration: Math.floor(duration)
+                duration: duration
             });
         } else {
             res.status(404).json({
@@ -56,6 +58,10 @@ app.post('/duration', async (req, res) => {
     }
 });
 
+app.get('/duration/web', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(port, () => {
-    console.log(`API server listening at http://localhost:${port}`);
+    console.log(`Server listening on port ${port}`);
 });
