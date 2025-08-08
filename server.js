@@ -9,7 +9,7 @@ const port = 3000;
 app.use(express.json());
 
 
-app.get("/duration/web", (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'app.html'));
 });
 
