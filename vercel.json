@@ -9,16 +9,12 @@
   "routes": [
     {
       "src": "/duration",
-      "methods": [
-        "POST"
-      ],
+      "methods": ["POST"],
       "dest": "server.js"
     },
     {
       "src": "/duraltion/web",
-      "methods": [
-        "GET"
-      ],
+      "methods": ["GET"],
       "dest": "server.js"
     }
   ]
