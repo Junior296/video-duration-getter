@@ -8,18 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/duration",
-      "methods": ["POST"],
+      "src": "/(.*)",
       "dest": "server.js"
-    },
-    {
-      "src": "/duration/web", 
-      "methods": ["GET"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/", 
-      "dest": "/duration/web"
     }
   ]
 }
