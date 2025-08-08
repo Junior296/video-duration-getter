@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Duration Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --background-color: #f4f7f9;
+      --card-background: #ffffff;
+      --text-color: #333333;
+      --border-color: #e0e0e0;
+      --success-color: #2ecc71;
+      --error-color: #e74c3c;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      padding: 32px;
+      background-color: var(--card-background);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    #url {
+      flex-grow: 1;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #url:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    #get-btn {
+      padding: 12px 24px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #get-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .duration-display {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    #video-duration {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--success-color);
+    }
+
+    .loading {
+      color: #f1c40f;
+    }
+
+    .error {
+      color: var(--error-color);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Video Duration Checker</h1>
+    <div class="input-group">
+      <input type="text" id="url" placeholder="Enter video URL...">
+      <button id="get-btn">Get Duration</button>
+    </div>
+    <div class="duration-display">
+      <p>Video Duration:</p>
+      <span id="video-duration">N/A</span>
+    </div>
+  </div>
+
+  <script>
+    const urlInput = document.getElementById("url");
+    const getBtn = document.getElementById("get-btn");
+    const durationSpan = document.getElementById("video-duration");
+
+    getBtn.addEventListener('click', async () => {
+      const videoUrl = urlInput.value;
+      if (!videoUrl) {
+        durationSpan.textContent = "Please enter a URL.";
+        durationSpan.classList.add('error');
+        return;
+      }
+
+      // Clear previous states
+      durationSpan.classList.remove('error', 'loading');
+      durationSpan.textContent = "Loading...";
+      durationSpan.classList.add('loading');
+
+      try {
+        const duration = await fetchMovieDuration(videoUrl);
+        durationSpan.textContent = `${Math.floor(duration)} Seconds`;
+        durationSpan.classList.remove('loading');
+        durationSpan.classList.add('success');
+      } catch (error) {
+        durationSpan.textContent = "Error: " + error.message;
+        durationSpan.classList.remove('loading');
+        durationSpan.classList.add('error');
+      }
+    });
+
+    function fetchMovieDuration(url) {
+      return new Promise((resolve, reject) => {
+        const videoElement = document.createElement("video");
+        videoElement.setAttribute("src", url);
+        videoElement.setAttribute("preload", "metadata");
+
+        videoElement.addEventListener("loadedmetadata", () => {
+          const durationInSeconds = videoElement.duration;
+          resolve(durationInSeconds);
+          videoElement.remove();
+        });
+
+        videoElement.addEventListener("error", () => {
+          reject(new Error("Failed to load video metadata."));
+          videoElement.remove();
+        });
+      });
+    }
+  </script>
+
+</body>
+
+</html>
