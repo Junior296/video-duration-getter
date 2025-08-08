@@ -1,12 +1,8 @@
 const express = require('express');
 const path = require('path');
-const ffmpeg = require('fluent-ffmpeg');
-
-// 🚨 FIX: Import the ffmpeg-installer package
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-
-// 🚨 FIX: Set the path to the ffmpeg executable
-ffmpeg.setFfmpegPath(ffmpegPath);
+// 🚨 FIX: Use the new ffprobe packages
+const ffprobe = require('ffprobe');
+const ffprobeStatic = require('ffprobe-static');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,23 +21,22 @@ app.post('/duration', async (req, res) => {
     }
 
     try {
+        // 🚨 FIX: Use the ffprobe function wrapped in a Promise
         const info = await new Promise((resolve, reject) => {
-            // Note: `ffprobe` is a method of the ffmpeg command object
-            ffmpeg.ffprobe(videoUrl, (err, metadata) => {
+            ffprobe(videoUrl, { path: ffprobeStatic.path }, (err, data) => {
                 if (err) {
-                    reject(err);
-                } else {
-                    resolve(metadata);
+                    return reject(err);
                 }
+                resolve(data);
             });
         });
 
-        const duration = info.format.duration;
+        const duration = info.streams[0].duration;
 
         if (duration) {
             res.json({
                 success: true,
-                duration: duration
+                duration: Math.floor(duration)
             });
         } else {
             res.status(404).json({
@@ -58,6 +53,7 @@ app.post('/duration', async (req, res) => {
     }
 });
 
+// Endpoint to serve the web page
 app.get('/duration/web', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
