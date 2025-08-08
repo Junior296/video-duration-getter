@@ -13,9 +13,13 @@
       "dest": "server.js"
     },
     {
-      "src": "/duraltion/web",
+      "src": "/duration/web", 
       "methods": ["GET"],
       "dest": "server.js"
+    },
+    {
+      "src": "/", 
+      "dest": "/duration/web"
     }
   ]
 }
