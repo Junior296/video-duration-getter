@@ -54,7 +54,7 @@ app.post('/duration', async (req, res) => {
 });
 
 // Endpoint to serve the web page
-app.get('/duration/web', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
